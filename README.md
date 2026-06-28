@@ -4,20 +4,28 @@ This is a minimal Node.js API example.
 
 ## Table of Contents
 
-- [Requirements](#requirements)
-- [Run Locally](#run-locally)
-- [Endpoints](#endpoints)
-- [Run With Docker](#run-with-docker)
-- [Continuous Integration](#continuous-integration)
-- [Operational Health Check](#operational-health-check)
-- [Secrets Management](#secrets-management)
+- [1. Base Application and Repository](#1-base-application-and-repository)
+  - [1.1 Requirements](#11-requirements)
+  - [1.2 Run Locally](#12-run-locally)
+  - [1.3 Endpoints](#13-endpoints)
+- [2. Docker Containerization](#2-docker-containerization)
+  - [2.1 Run With Docker](#21-run-with-docker)
+- [3. Continuous Integration](#3-continuous-integration)
+  - [3.1 CI Pipeline](#31-ci-pipeline)
+- [4. Operational Automation](#4-operational-automation)
+  - [4.1 Operational Health Check](#41-operational-health-check)
+- [5. Security and Repository Controls](#5-security-and-repository-controls)
+  - [5.1 Repository Governance](#51-repository-governance)
+  - [5.2 Secrets Management](#52-secrets-management)
 
-## Requirements
+## 1. Base Application and Repository
+
+### 1.1 Requirements
 
 - Node.js 20 or newer
 - npm
 
-## Run Locally
+### 1.2 Run Locally
 
 Install dependencies:
 
@@ -43,7 +51,7 @@ By default, the API runs at:
 http://localhost:3000
 ```
 
-## Endpoints
+### 1.3 Endpoints
 
 Health check:
 
@@ -69,7 +77,9 @@ Expected response:
 { "version": "1.0.0" }
 ```
 
-## Run With Docker
+## 2. Docker Containerization
+
+### 2.1 Run With Docker
 
 Build the image:
 
@@ -90,7 +100,9 @@ curl http://localhost:3000/health
 curl http://localhost:3000/version
 ```
 
-## Continuous Integration
+## 3. Continuous Integration
+
+### 3.1 CI Pipeline
 
 GitHub Actions runs on pushes and pull requests targeting `develop` and `main`.
 
@@ -98,7 +110,9 @@ The CI workflow installs dependencies, runs ESLint, executes automated tests for
 
 NOTE: On push events to `develop` or `main`, the workflow also publishes the image to GHCR with branch and commit-based tags.
 
-## Operational Health Check
+## 4. Operational Automation
+
+### 4.1 Operational Health Check
 
 The repository includes a Python health-check script that checks `GET /health`, appends the result to a local log file, and returns a non-zero exit code when the service is unreachable or does not return HTTP 200.
 
@@ -130,9 +144,17 @@ Example log output:
 
 The generated `.log` file is an execution artifact and must not be committed.
 
-## Secrets Management
+## 5. Security and Repository Controls
 
-Secrets must not be stored in source code, `.env.example`, Dockerfiles, or workflow logs. For CI, sensitive values should be configured in GitHub repository secrets and injected only at runtime.
+### 5.1 Repository Governance
+
+Branch protection was configured for `develop` and `main`.
+
+Protected branches require pull requests, passing status checks, resolved conversations, and no bypass of the configured rules before merging.
+
+### 5.2 Secrets Management
+
+Secrets must not be stored in source code, `.env.example`, Dockerfiles, or workflow logs. For CI, sensitive values should be configured in GitHub Secrets and injected only at runtime.
 
 Example secret used by the workflow:
 
@@ -140,13 +162,14 @@ Example secret used by the workflow:
 DEMO_API_KEY
 ```
 
-Configure it in GitHub:
+The demo secret was configured through GitHub Environments for both integration branches:
 
 ```text
-Settings > Secrets and variables > Actions > New repository secret
+Settings > Environments > develop > Environment secrets
+Settings > Environments > main > Environment secrets
 ```
 
-The CI workflow references it as:
+The CI job selects the matching environment based on the target branch, and references the secret as:
 
 ```yaml
 DEMO_API_KEY: ${{ secrets.DEMO_API_KEY }}
