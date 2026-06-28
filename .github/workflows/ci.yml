@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  # Run CI only when changes target the integration or release branches.
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          # setup-node v6 enables npm cache automatically from packageManager in package.json.
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        # Pull requests only validate the image build; pushes publish the image.
+        if: github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          # Publish only after code is integrated through push to develop/main.
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ github.event_name == 'pull_request' && 'devops-api:ci' || format('ghcr.io/{0}:{1}', github.repository, github.ref_name) }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
