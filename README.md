@@ -10,6 +10,7 @@ This is a minimal Node.js API example.
 - [Run With Docker](#run-with-docker)
 - [Continuous Integration](#continuous-integration)
 - [Operational Health Check](#operational-health-check)
+- [Secrets Management](#secrets-management)
 
 ## Requirements
 
@@ -128,3 +129,27 @@ Example log output:
 ```
 
 The generated `.log` file is an execution artifact and must not be committed.
+
+## Secrets Management
+
+Secrets must not be stored in source code, `.env.example`, Dockerfiles, or workflow logs. For CI, sensitive values should be configured in GitHub repository secrets and injected only at runtime.
+
+Example secret used by the workflow:
+
+```text
+DEMO_API_KEY
+```
+
+Configure it in GitHub:
+
+```text
+Settings > Secrets and variables > Actions > New repository secret
+```
+
+The CI workflow references it as:
+
+```yaml
+DEMO_API_KEY: ${{ secrets.DEMO_API_KEY }}
+```
+
+The workflow only validates whether the secret is available and never prints its value.
