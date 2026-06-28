@@ -79,3 +79,11 @@ Verify the container:
 curl http://localhost:3000/health
 curl http://localhost:3000/version
 ```
+
+## Continuous Integration
+
+GitHub Actions runs on pushes and pull requests targeting `develop` and `main`.
+
+The CI workflow installs dependencies, runs ESLint, executes automated tests for `/health` and `/version`, and builds the Docker image.
+
+NOTE: On push events to `develop` or `main`, the workflow also publishes the image to GHCR with branch and commit-based tags.
