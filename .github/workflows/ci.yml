@@ -56,6 +56,6 @@ jobs:
           context: .
           # Publish only after code is integrated through push to develop/main.
           push: ${{ github.event_name == 'push' }}
-          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          tags: ${{ github.event_name == 'pull_request' && 'devops-api:ci' || format('ghcr.io/{0}:{1}', github.repository, github.ref_name) }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
