@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  validate-and-build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
