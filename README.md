@@ -58,3 +58,24 @@ Expected response:
 ```json
 { "version": "1.0.0" }
 ```
+
+## Run With Docker
+
+Build the image:
+
+```bash
+docker build -t devops-api:1.0.0 .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 3000:3000 -e APP_VERSION=1.0.0 devops-api:1.0.0
+```
+
+Verify the container:
+
+```bash
+curl http://localhost:3000/health
+curl http://localhost:3000/version
+```
