@@ -6,7 +6,8 @@ on:
     branches: [develop, main]
   pull_request:
     branches: [develop, main]
-  workflow_dispatch:
+  # Manual runs are disabled to keep CI limited to develop and main.
+  # workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}
